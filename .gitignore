@@ -87,3 +87,16 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+*.iml
+.gradle
+TimeKeeper/local.properties
+TimeKeeper/.idea/workspace.xml
+TimeKeeper/.idea/libraries
+TimeKeeper.DS_Store
+TimeKeeper/build
+TimeKeeper/captures
+.externalNativeBuild
+
+TimeKeeper/.idea/
+

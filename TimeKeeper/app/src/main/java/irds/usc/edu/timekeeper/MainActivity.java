@@ -11,16 +11,19 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final String DATA_FILE_NAME = "irds_time_football";
+    public static final String TIME_KEEPER_DATA_DIR = "TimeKeeper";
     private ListView lv;
-    List<TimeRange> timeList = new ArrayList<>();
+    private String fileSuffix = "";
+    List<TimeRecord> timeList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,65 +32,93 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        saveData(null);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        saveData(null);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        saveData(null);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        saveData(null);
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        saveData(null);
+    }
+
     private void updateArray() {
         lv = (ListView) findViewById(R.id.timeGrid);
 
-        ArrayAdapter<TimeRange> arrayAdapter = new ArrayAdapter<TimeRange>(
+        fileSuffix = new SimpleDateFormat("yyyyMMddhhmmss'.csv'").format(new Date());
+
+        ArrayAdapter<TimeRecord> arrayAdapter = new ArrayAdapter<TimeRecord>(
                 this,
                 android.R.layout.simple_list_item_1,
                 timeList);
 
         lv.setAdapter(arrayAdapter);
 
+
     }
 
-    public void addBegin(View v) {
-        timeList.add(new TimeRange( new Date() ) );
+    /**
+     * Records a new time entry
+     */
+    public void recordTime(View v) {
+        timeList.add(new TimeRecord( new Date() ) );
         updateArray();
-    }
 
-    public void addEnd(View v) {
-        //Get last element
-        TimeRange timeRange = timeList.get(timeList.size() - 1);
-        if ( timeRange != null && timeRange.getEnd() == null ){
-            // if there is atleast one entry AND
-            //if start is there but no end, update end
-            timeRange.setEnd(new Date());
-        }else{
-            //if end is there add new record
-            timeRange = new TimeRange( new Date() );
-            timeRange.setEnd( new Date() );
-            timeList.add( timeRange );
+        if (timeList.size() % 3 == 0){
+            saveData(null);
         }
-
-        updateArray();
     }
 
+    /**
+     * Saves all time in file
+     */
     public void saveData(View v) {
         StringBuffer sb = new StringBuffer("");
 
-        for (TimeRange timeRange : timeList){
-            sb.append(timeRange.fileString());
+        for (TimeRecord timeRecord : timeList){
+            sb.append(timeRecord.fileString());
             sb.append("\n");
         }
 
         writeToFile(sb.toString());
     }
 
+    /**
+     * Finds external SD and writes data to a CSV file
+     */
     public void writeToFile(String data)
     {
         String path =
-                Environment.getExternalStorageDirectory() + File.separator  + "TimeKeeper";
+                Environment.getExternalStorageDirectory() + File.separator  + TIME_KEEPER_DATA_DIR;
         // Create the folder.
         File folder = new File(path);
         folder.mkdirs();
 
         // Create the file.
-        File file = new File(folder, "irds_time_football.txt");
+        File file = new File(folder, DATA_FILE_NAME + fileSuffix);
 
-        // Save your stream, don't forget to flush() it before closing it.
 
-        CharSequence text = "Something unexpected happen!";
+        CharSequence text ;
         try
         {
             file.createNewFile();
@@ -105,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
         }
         catch (Exception e)
         {
-            text = "Saved at " + file.getAbsolutePath();
+            text = "Error while saving- " + e.getMessage();
         }
 
         Context context = getApplicationContext();

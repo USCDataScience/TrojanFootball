@@ -14,49 +14,35 @@
         android:id="@+id/textClock"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="10dp"
         android:format12Hour="hh:mm:ss a"
+        android:format24Hour="hh:mm:ss"
         android:gravity="center_horizontal"
+        android:onClick="saveData"
         android:textColor="#d41709"
         android:textSize="44sp"
-        android:textStyle="bold"
-        android:onClick="saveData"/>
+        android:textStyle="bold" />
 
-    <LinearLayout android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_below="@+id/textClock">
+        android:layout_below="@+id/textClock"
+        android:orientation="vertical">
 
         <ListView
             android:id="@+id/timeGrid"
-            android:layout_height="0dip"
             android:layout_width="match_parent"
+            android:layout_height="0dip"
             android:layout_weight="1" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:weightSum="2">
-            <Button
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:onClick="addBegin"
-                android:text="BEGIN"/>
-            <Button
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:onClick="addEnd"
-                android:text="END"/>
 
-
-        </LinearLayout>
+        <Button
+            android:layout_width="fill_parent"
+            android:layout_height="0dip"
+            android:layout_weight="1"
+            android:onClick="recordTime"
+            android:text="RECORD" />
 
     </LinearLayout>
-
-
-
-
 
 </RelativeLayout>

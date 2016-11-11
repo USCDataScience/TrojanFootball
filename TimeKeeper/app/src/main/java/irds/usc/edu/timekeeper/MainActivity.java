@@ -37,14 +37,56 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String DATA_FILE_NAME = "irds_time_football";
     public static final String TIME_KEEPER_DATA_DIR = "TimeKeeper";
-    private ListView lv;
-    private String fileSuffix = "";
-    List<TimeRecord> timeList = new ArrayList<>();
+    private List<TimeRecord> timeList = new ArrayList<>();
+    private String fileSuffix;
+    private File file;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        fileSuffix = new SimpleDateFormat("yyMMddhhmmss").format(new Date());
+        // change  digits to alphabets. Saw an issue with file with numbers
+        StringBuilder builder = new StringBuilder("");
+
+        for (char c : fileSuffix.toCharArray()){
+            // 0-> A, 1->B
+            builder.append( (char)(c + 17)  );
+        }
+
+        fileSuffix = builder.toString() + ".csv";
+
+        String path =
+                Environment.getExternalStorageDirectory() + File.separator  + TIME_KEEPER_DATA_DIR;
+        // Create the folder.
+        File folder = new File(path);
+        folder.mkdirs();
+
+        // Create the file.
+        file = new File(folder, DATA_FILE_NAME + fileSuffix);
+        boolean created;
+        try
+        {
+            created = file.createNewFile();
+        }
+        catch (Exception e){
+            created = false;
+        }
+        try
+        {
+            if (!created && !file.exists()){
+                //Try cretaing it in app directory
+                file = new File(getApplicationContext().getExternalFilesDir(null), DATA_FILE_NAME + fileSuffix);
+                file.createNewFile();
+
+            }
+        }
+        catch (Exception e){
+            Toast.makeText(getApplicationContext(), "Can't create new files " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+
+
 
     }
 
@@ -79,19 +121,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateArray() {
-        lv = (ListView) findViewById(R.id.timeGrid);
+        ListView lv = (ListView) findViewById(R.id.timeGrid);
 
-        fileSuffix = new SimpleDateFormat("yyMMddhhmmss").format(new Date());
-        // change  digits to alphabets. Saw an issue with file with numbers
-        StringBuilder builder = new StringBuilder();
-
-        for (char c : fileSuffix.toCharArray()){
-            // 0-> A, 1->B
-            builder.append( (char)(c + 17)  );
-        }
-
-        fileSuffix = builder.toString() + ".csv";
-        ArrayAdapter<TimeRecord> arrayAdapter = new ArrayAdapter<TimeRecord>(
+        ArrayAdapter<TimeRecord> arrayAdapter = new ArrayAdapter<>(
                 this,
                 android.R.layout.simple_list_item_1,
                 timeList);
@@ -117,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
      * Saves all time in file
      */
     public void saveData(View v) {
-        StringBuffer sb = new StringBuffer("");
+        StringBuilder sb = new StringBuilder("");
 
         for (TimeRecord timeRecord : timeList){
             sb.append(timeRecord.fileString());
@@ -134,34 +166,13 @@ public class MainActivity extends AppCompatActivity {
     {
         Context context = getApplicationContext();
         int duration = Toast.LENGTH_SHORT;
-
-        String path =
-                Environment.getExternalStorageDirectory() + File.separator  + TIME_KEEPER_DATA_DIR;
-        // Create the folder.
-        File folder = new File(path);
-        folder.mkdirs();
-
-        // Create the file.
-        File file = new File(folder, DATA_FILE_NAME + fileSuffix);
-
-
         CharSequence text ;
+
         try
         {
-            boolean created = file.createNewFile();
-
-            if (!created && !file.exists()){
-                //Try cretaing it in app directory
-                File dir = new File(context.getFilesDir() + File.separator  + TIME_KEEPER_DATA_DIR);
-                dir.mkdirs(); //create folders to write files
-                file = new File(dir, DATA_FILE_NAME + fileSuffix);
-                file.createNewFile();
-
-            }
-
             FileOutputStream fOut = new FileOutputStream(file);
             OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
-            myOutWriter.append(data);
+            myOutWriter.write(data);
 
             myOutWriter.close();
 

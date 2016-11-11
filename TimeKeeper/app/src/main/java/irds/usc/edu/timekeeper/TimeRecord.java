@@ -41,7 +41,7 @@ public class TimeRecord {
 
     @Override
     public String toString() {
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS");
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 
         return  getString(sdf);
     }
